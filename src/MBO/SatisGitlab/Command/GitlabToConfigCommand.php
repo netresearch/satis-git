@@ -2,7 +2,6 @@
 
 namespace MBO\SatisGitlab\Command;
 
-use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 use Symfony\Component\Console\Command\Command;
@@ -13,10 +12,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 
 use MBO\SatisGitlab\Satis\ConfigBuilder;
-use GuzzleHttp\Client as GuzzleHttpClient;
 
 use MBO\RemoteGit\ClientFactory;
-use MBO\RemoteGit\ClientInterface;
 use MBO\RemoteGit\FindOptions;
 use MBO\RemoteGit\ProjectInterface;
 use MBO\RemoteGit\ClientOptions;
@@ -37,10 +34,11 @@ use MBO\SatisGitlab\GitFilter\GitlabNamespaceFilter;
  * @author SilverFire
  * @author kaystrobach
  */
-class GitlabToConfigCommand extends Command {
-
-    protected function configure() {
-        $templatePath = realpath( dirname(__FILE__).'/../Resources/default-template.json' );
+class GitlabToConfigCommand extends Command
+{
+    protected function configure()
+    {
+        $templatePath = realpath(__DIR__ . '/../Resources/default-template.json');
 
         $this
             // the name of the command (the part after "bin/console")
@@ -91,7 +89,8 @@ class GitlabToConfigCommand extends Command {
     /**
      * @{inheritDoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output) {
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
         $logger = $this->createLogger($output);
 
         /*
@@ -194,7 +193,7 @@ class GitlabToConfigCommand extends Command {
         }
 
         // mirroring
-        if ( $input->getOption('archive') ){
+        if ($input->getOption('archive')) {
             $configBuilder->enableArchive();
         }
 
@@ -204,7 +203,7 @@ class GitlabToConfigCommand extends Command {
         $gitlabDomain = parse_url($clientOptions->getUrl(), PHP_URL_HOST);
         $configBuilder->addGitlabDomain($gitlabDomain);
 
-        if ( ! $input->getOption('no-token') && $clientOptions->hasToken() ){
+        if (! $input->getOption('no-token') && $clientOptions->hasToken()) {
             $configBuilder->addGitlabToken(
                 $gitlabDomain, 
                 $clientOptions->getToken(),
@@ -270,9 +269,9 @@ class GitlabToConfigCommand extends Command {
         }
 
         /* notify number of project found */
-        if ( $projectCount == 0 ){
+        if ($projectCount == 0) {
             $logger->error("No project found!");
-        }else{
+        } else {
             $logger->info(sprintf(
                 "Number of project found : %s",
                 $projectCount
@@ -290,7 +289,10 @@ class GitlabToConfigCommand extends Command {
 
 
     /**
-     * Create message for a given project 
+     * Create message for a given project
+     * @param ProjectInterface $project
+     * @param string $message
+     * @return string
      */
     protected function createProjectMessage(
         ProjectInterface $project,
@@ -309,12 +311,13 @@ class GitlabToConfigCommand extends Command {
      * @param OutputInterface $output
      * @return ConsoleLogger
      */
-    protected function createLogger(OutputInterface $output){
-        $verbosityLevelMap = array(
+    protected function createLogger(OutputInterface $output)
+    {
+        $verbosityLevelMap = [
             LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
             LogLevel::INFO   => OutputInterface::VERBOSITY_NORMAL,
-        );
-        return new ConsoleLogger($output,$verbosityLevelMap);
-    }
+        ];
 
+        return new ConsoleLogger($output, $verbosityLevelMap);
+    }
 }

@@ -7,8 +7,8 @@ namespace MBO\SatisGitlab\Satis;
  * 
  * @author mborne
  */
-class ConfigBuilder {
-
+class ConfigBuilder
+{
     /**
      * resulting configuration
      */
@@ -18,10 +18,10 @@ class ConfigBuilder {
      * Init configuration with a template
      * @param $templatePath string path to the template
      */
-    public function __construct( $templatePath = null )
+    public function __construct($templatePath = null)
     {
-        if ( empty($templatePath) ){
-            $templatePath = dirname(__FILE__).'/../Resources/default-template.json';
+        if (empty($templatePath)) {
+            $templatePath = __DIR__ . '/../Resources/default-template.json';
         }
         $this->config = json_decode(file_get_contents($templatePath),true);
     }
@@ -29,59 +29,64 @@ class ConfigBuilder {
     /**
      * Get resulting configuration
      */
-    public function getConfig(){
+    public function getConfig()
+    {
         return $this->config;
     }
 
     /**
      * Set homepage
-     * @return $self
+     * @param string $homepage
+     * @return void
      */
-    public function setHomepage($homepage){
+    public function setHomepage($homepage)
+    {
         $this->config['homepage'] = $homepage;
-
-        return $this;
     }
 
     /**
      * Turn on mirror mode
-     * @return $self
+     *
+     * @return void
      */
-    public function enableArchive(){
-        $this->config['archive'] = array(
+    public function enableArchive()
+    {
+        $this->config['archive'] = [
             'directory' => 'dist',
-            'format' => 'tar',
-            'skip-dev' => true
-        );
+            'format'    => 'tar',
+            'skip-dev'  => true,
+        ];
     }
 
     /**
      * Add gitlab domain to config
-     * @return $self
+     *
+     * @param string $gitlabDomain
+     * @return void
      */
-    public function addGitlabDomain($gitlabDomain){
-        if ( ! isset($this->config['config']) ){
-            $this->config['config'] = array();
+    public function addGitlabDomain($gitlabDomain)
+    {
+        if (! isset($this->config['config'])) {
+            $this->config['config'] = [];
         }
-        if ( ! isset($this->config['config']['gitlab-domains']) ){
+        if (! isset($this->config['config']['gitlab-domains'])) {
             $this->config['config']['gitlab-domains'] = array();
         }
 
-        $this->config['config']['gitlab-domains'][] = $gitlabDomain ;
-
-        return $this;
+        $this->config['config']['gitlab-domains'][] = $gitlabDomain;
     }
 
     /**
      * Add gitlab token
      * 
      * TODO : Ensure addGitlabDomain is invoked?
-     * 
-     * @return $self
+     *
+     * @return self
      */
-    public function addGitlabToken($gitlabDomain, $gitlabAuthToken){
-        if ( ! isset($this->config['config']['gitlab-token']) ){
-            $this->config['config']['gitlab-token'] = array();
+    public function addGitlabToken($gitlabDomain, $gitlabAuthToken)
+    {
+        if (! isset($this->config['config']['gitlab-token'])) {
+            $this->config['config']['gitlab-token'] = [];
         }
         $this->config['config']['gitlab-token'][$gitlabDomain] = $gitlabAuthToken;
 
@@ -96,34 +101,33 @@ class ConfigBuilder {
      * @param string $projectUrl
      * @param boolean $unsafeSsl allows to disable ssl checks 
      * 
-     * @return $self
+     * @return void
      */
     public function addRepository(
         $projectName,
         $projectUrl,
         $unsafeSsl = false
-    ){
-        if ( ! isset($this->config['repositories']) ){
-            $this->config['repositories'] = array();
+    ) {
+        if (! isset($this->config['repositories'])) {
+            $this->config['repositories'] = [];
         }
 
-        $repository = array(
+        $repository = [
             'type' => 'vcs',
-            'url' => $projectUrl
-        );
+            'url'  => $projectUrl,
+        ];
 
-        if ( $unsafeSsl ){
+        if ($unsafeSsl) {
             $repository['options'] = [
                 "ssl" => [
-                    "verify_peer" => false,
-                    "verify_peer_name" => false,
-                    "allow_self_signed" => true
-                ]
+                    "verify_peer"       => false,
+                    "verify_peer_name"  => false,
+                    "allow_self_signed" => true,
+                ],
             ];
         }
 
-        $this->config['repositories'][] = $repository ;
+        $this->config['repositories'][] = $repository;
         $this->config['require'][$projectName] = '*';
     }
-
 }

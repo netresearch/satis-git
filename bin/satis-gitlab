@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 
 /*
@@ -17,7 +17,10 @@ function includeIfExists($file)
     }
 }
 
-if ((!$loader = includeIfExists(__DIR__.'/../vendor/autoload.php')) && (!$loader = includeIfExists(__DIR__.'/../../../autoload.php'))) {
+if (
+        !includeIfExists(__DIR__ . '/../vendor/autoload.php')
+     && !includeIfExists(__DIR__ . '/../../../autoload.php')
+) {
     print('You must set up the project dependencies using Composer before you can use Satis.');
     exit(1);
 }

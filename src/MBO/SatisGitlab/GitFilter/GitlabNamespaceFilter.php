@@ -13,7 +13,8 @@ use MBO\RemoteGit\ClientInterface as GitClientInterface;
  * 
  * @author roygoldman
  */
-class GitlabNamespaceFilter implements ProjectFilterInterface {
+class GitlabNamespaceFilter implements ProjectFilterInterface
+{
     /**
      * @var string[]
      */
@@ -32,21 +33,20 @@ class GitlabNamespaceFilter implements ProjectFilterInterface {
     /**
      * GitlabNamespaceFilter constructor.
      *
-     * @param string $type
-     * @param GitClientInterface $gitClient
-     * @param LoggerInterface $logger
+     * @param string $groups
      */
     public function __construct($groups)
     {
         assert(!empty($groups));
-        $this->groups = explode(',',strtolower($groups));
+        $this->groups = explode(',', strtolower($groups));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getDescription(){
-        return "gitlab namespace should be one of [".implode(', ',$this->groups)."]";
+    public function getDescription()
+    {
+        return "gitlab namespace should be one of [" . implode(', ', $this->groups) . "]";
     }
 
     /**
@@ -60,16 +60,17 @@ class GitlabNamespaceFilter implements ProjectFilterInterface {
             // Extra data from namespace to patch on.
             $valid_keys = [
                 'name' => 'name',
-                'id' => 'id',
+                'id'   => 'id',
             ];
             $namespace_info = array_intersect_key($project_info['namespace'], $valid_keys);
             $namespace_info = array_map('strtolower', $namespace_info);
             
             if (!empty($namespace_info) && !empty(array_intersect($namespace_info, $this->groups))) {
                 // Accept any package with a permitted namespace name or id.
-                return TRUE;
+                return true;
             }
         }
-        return FALSE;
+
+        return false;
     }
 }
