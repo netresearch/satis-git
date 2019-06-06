@@ -11,10 +11,6 @@ php:
   - nightly
 
 matrix:
-  # composer update should be required only for PHP 5.6 version
-  include:
-      - php: 5.6
-        env: deps=update
   fast_finish: true
 
 cache:
