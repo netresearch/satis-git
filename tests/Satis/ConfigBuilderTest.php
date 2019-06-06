@@ -14,7 +14,7 @@ class ConfigBuilderTest extends TestCase {
         $result = $configBuilder->getConfig();
         // homepage
         $this->assertArrayHasKey('homepage',$result);
-        $this->assertEquals('http://localhost/satis/',$result['homepage']);
+        $this->assertEquals('http://satis.localhost/',$result['homepage']);
     }
 
     public function testSetHomepage(){

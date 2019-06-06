@@ -1,6 +1,6 @@
 {
     "name": "SATIS repository",
-    "homepage": "http://localhost/satis/",
+    "homepage": "http://satis.localhost/",
     "repositories": [
         {
             "type": "composer",

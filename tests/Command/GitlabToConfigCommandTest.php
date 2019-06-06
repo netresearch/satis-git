@@ -34,8 +34,8 @@ class GitlabToConfigCommandTest extends TestCase {
         $command = new GitlabToConfigCommand('gitlab-to-config');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
-            'gitlab-url' => 'http://gitlab.com',
-            'gitlab-token' => $gitlabToken,
+            'git-url' => 'http://gitlab.com',
+            'git-token' => $gitlabToken,
             '--projectFilter' => 'sample-composer',
             '--include-if-has-file' => 'README.md',
             '--output' => $this->outputFile

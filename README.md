@@ -78,9 +78,11 @@ If you rely on gitlab.com, you will probably need to find projects according to 
 bin/satis-gitlab gitlab-to-config https://gitlab.com $SATIS_GITLAB_TOKEN -vv --users=mborne --orgs=drutopia
 ```
 
-## Build configuration according to github repositories
+## Build configuration according to non-gitlab repositories
 
-github supports allows to perform :
+Repository discovery now relies on [mborne/remote-git](https://packagist.org/packages/mborne/remote-git) so that other git hosting services such as github or gogs are supported.
+
+### github
 
 ```bash
 bin/satis-gitlab gitlab-to-config https://github.com  $SATIS_GITHUB_TOKEN --orgs=symfony --users=mborne
@@ -89,6 +91,14 @@ bin/satis-gitlab build --skip-errors satis.json web
 
 (Note that GITHUB_TOKEN is required to avoid rate request limitation)
 
+### gogs
+
+```bash
+bin/satis-gitlab gitlab-to-config https://gogs.mydomain.org  $SATIS_GOGS_TOKEN
+bin/satis-gitlab build --skip-errors satis.json web
+```
+
+(Note that gogs detection is based on hostname)
 
 ### Mirror dependencies
 

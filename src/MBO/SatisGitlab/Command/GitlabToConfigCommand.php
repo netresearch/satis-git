@@ -23,6 +23,8 @@ use MBO\RemoteGit\Filter\ComposerProjectFilter;
 use MBO\RemoteGit\Filter\RequiredFileFilter;
 
 use MBO\SatisGitlab\GitFilter\GitlabNamespaceFilter;
+use MBO\RemoteGit\Gitlab\GitlabClient;
+use MBO\RemoteGit\Github\GithubClient;
 
 /**
  * Generate SATIS configuration scanning gitlab repositories
@@ -51,15 +53,15 @@ class GitlabToConfigCommand extends Command
             /* 
              * Git client options 
              */
-            ->addArgument('gitlab-url', InputArgument::REQUIRED)
-            ->addArgument('gitlab-token')
+            ->addArgument('git-url', InputArgument::REQUIRED)
+            ->addArgument('git-token')
 
             /*
              * Project listing options (hosted git api level)
              */
             ->addOption('orgs', 'o', InputOption::VALUE_REQUIRED, 'Find projects according to given organization names')
             ->addOption('users', 'u', InputOption::VALUE_REQUIRED, 'Find projects according to given user names')
-            ->addOption('projectFilter', 'p', InputOption::VALUE_OPTIONAL, 'filter for projects (deprecated : see organization and users)', null)
+            ->addOption('projectFilter', 'p', InputOption::VALUE_OPTIONAL, '[DEPRECATED] filter for projects (deprecated : see organization and users)', null)
 
             /*
              * Project filters
@@ -67,7 +69,7 @@ class GitlabToConfigCommand extends Command
             ->addOption('ignore', 'i', InputOption::VALUE_REQUIRED, 'ignore project according to a regexp, for ex : "(^phpstorm|^typo3\/library)"', null)
             ->addOption('include-if-has-file',null,InputOption::VALUE_REQUIRED, 'include in satis config if project contains a given file, for ex : ".satisinclude"', null)
             ->addOption('project-type',null,InputOption::VALUE_REQUIRED, 'include in satis config if project is of a specified type, for ex : "library"', null)
-            ->addOption('gitlab-namespace',null,InputOption::VALUE_REQUIRED, 'include in satis config if gitlab project namespace is in the list, for ex : "2,Diaspora" (deprecated : see organization and users)', null)
+            ->addOption('gitlab-namespace',null,InputOption::VALUE_REQUIRED, '[DEPRECATED] include in satis config if gitlab project namespace is in the list, for ex : "2,Diaspora"', null)
             /* 
              * satis config generation options 
              */
@@ -97,8 +99,8 @@ class GitlabToConfigCommand extends Command
          * Create git client according to parameters
          */
         $clientOptions = new ClientOptions();
-        $clientOptions->setUrl($input->getArgument('gitlab-url'));
-        $clientOptions->setToken($input->getArgument('gitlab-token'));
+        $clientOptions->setUrl($input->getArgument('git-url'));
+        $clientOptions->setToken($input->getArgument('git-token'));
         /*
          * TODO add option 
          * see https://github.com/mborne/satis-gitlab/issues/2
@@ -129,6 +131,7 @@ class GitlabToConfigCommand extends Command
         /* projectFilter option */
         $projectFilter = $input->getOption('projectFilter');
         if ( ! empty($projectFilter) ) {
+            $logger->warning(sprintf("--projectFilter is deprecated, prefer --orgs and --users which gives a better control"));
             $logger->info(sprintf("Project filter : %s...", $projectFilter));
             $findOptions->setSearch($projectFilter);
         }
@@ -172,6 +175,7 @@ class GitlabToConfigCommand extends Command
         
         /* gitlab-namespace option */
         if ( ! empty($input->getOption('gitlab-namespace')) ){
+            $logger->warning(sprintf("--gitlab-namespace is deprecated, prefer --orgs to filter groups at gitlab API level"));
             $filterCollection->addFilter(new GitlabNamespaceFilter(
                 $input->getOption('gitlab-namespace')
             ));
@@ -200,23 +204,29 @@ class GitlabToConfigCommand extends Command
         /*
          * Register gitlab domain to enable composer gitlab-* authentications
          */
-        $gitlabDomain = parse_url($clientOptions->getUrl(), PHP_URL_HOST);
-        $configBuilder->addGitlabDomain($gitlabDomain);
+        $gitDomain = parse_url($clientOptions->getUrl(), PHP_URL_HOST);
+        $configBuilder->addGitlabDomain($gitDomain);
 
         if (! $input->getOption('no-token') && $clientOptions->hasToken()) {
-            $configBuilder->addGitlabToken(
-                $gitlabDomain, 
-                $clientOptions->getToken(),
-                $clientOptions->isUnsafeSsl()
-            );
+            if ($client instanceof GitlabClient) {
+                $configBuilder->addGitlabToken(
+                    $gitDomain, 
+                    $clientOptions->getToken()
+                );
+            } elseif ($client instanceof GithubClient) {
+                $configBuilder->addGithubToken(
+                    $clientOptions->getToken()
+                );
+            }
         }
 
         /*
          * SCAN gitlab projects to find composer.json file in default branch
          */
         $logger->info(sprintf(
-            "Listing gitlab repositories from %s...", 
-            $clientOptions->getUrl()
+            "Listing repositories from %s (API : %s)...", 
+            $clientOptions->getUrl(),
+            $clientOptions->getType()
         ));
 
         /*

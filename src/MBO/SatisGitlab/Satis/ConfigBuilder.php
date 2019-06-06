@@ -93,6 +93,19 @@ class ConfigBuilder
         return $this;
     }
 
+    /**
+     * Save github token to satis.json
+     *
+     * @param  string $githubToken
+     * @return self
+     */
+    public function addGithubToken($githubToken){
+        $this->config['config']['github-oauth'] = [
+            'github.com' => $githubToken
+        ];
+        return $this;
+    }
+
 
     /**
      * Add a repository to satis
