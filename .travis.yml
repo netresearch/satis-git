@@ -18,7 +18,6 @@ cache:
     - $HOME/.composer/cache
 
 before_script:
-  - if [ "$deps" == "update" ]; then composer update --prefer-dist; fi
-  - if [ "$deps" != "update" ]; then composer install --prefer-dist; fi
+  - composer update --prefer-dist
 
 script: vendor/bin/phpunit -c phpunit.xml.dist
