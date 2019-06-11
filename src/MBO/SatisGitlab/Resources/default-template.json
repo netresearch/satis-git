@@ -1,12 +1,6 @@
 {
     "name": "SATIS repository",
     "homepage": "http://satis.localhost/",
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://packagist.org"
-        }
-    ],
     "require": [],
     "require-dependencies": true,
     "require-dev-dependencies": true
