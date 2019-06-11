@@ -1,6 +1,6 @@
 <?php
 
-namespace MBO\SatisGitlab\Command;
+namespace MBO\SatisGit\Command;
 
 use Psr\Log\LogLevel;
 
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 
-use MBO\SatisGitlab\Satis\ConfigBuilder;
+use MBO\SatisGit\Satis\ConfigBuilder;
 
 use MBO\RemoteGit\ClientFactory;
 use MBO\RemoteGit\FindOptions;
@@ -22,12 +22,12 @@ use MBO\RemoteGit\Filter\IgnoreRegexpFilter;
 use MBO\RemoteGit\Filter\ComposerProjectFilter;
 use MBO\RemoteGit\Filter\RequiredFileFilter;
 
-use MBO\SatisGitlab\GitFilter\GitlabNamespaceFilter;
+use MBO\SatisGit\GitFilter\GitNamespaceFilter;
 use MBO\RemoteGit\Gitlab\GitlabClient;
 use MBO\RemoteGit\Github\GithubClient;
 
 /**
- * Generate SATIS configuration scanning gitlab repositories
+ * Generate SATIS configuration scanning git repositories
  *
  * @author mborne
  * @author roygoldman
@@ -36,7 +36,7 @@ use MBO\RemoteGit\Github\GithubClient;
  * @author SilverFire
  * @author kaystrobach
  */
-class GitlabToConfigCommand extends Command
+class GitToConfigCommand extends Command
 {
     protected function configure()
     {
@@ -44,11 +44,11 @@ class GitlabToConfigCommand extends Command
 
         $this
             // the name of the command (the part after "bin/console")
-            ->setName('gitlab-to-config')
+            ->setName('git-to-config')
 
             // the short description shown while running "php bin/console list"
-            ->setDescription('generate satis configuration scanning gitlab repositories')
-            ->setHelp('look for composer.json in default gitlab branche, extract project name and register them in SATIS configuration')
+            ->setDescription('generate satis configuration scanning git repositories')
+            ->setHelp('look for composer.json in default git branch, extract project name and register them in SATIS configuration')
             
             /* 
              * Git client options 
@@ -74,7 +74,7 @@ class GitlabToConfigCommand extends Command
              * satis config generation options 
              */
             // deep customization : template file extended with default configuration
-            ->addOption('template', null, InputOption::VALUE_REQUIRED, 'template satis.json extended with gitlab repositories', $templatePath)
+            ->addOption('template', null, InputOption::VALUE_REQUIRED, 'template satis.json extended with git repositories', $templatePath)
 
             // simple customization
             ->addOption('homepage', null, InputOption::VALUE_REQUIRED, 'satis homepage')
@@ -176,7 +176,7 @@ class GitlabToConfigCommand extends Command
         /* gitlab-namespace option */
         if ( ! empty($input->getOption('gitlab-namespace')) ){
             $logger->warning(sprintf("--gitlab-namespace is deprecated, prefer --orgs to filter groups at gitlab API level"));
-            $filterCollection->addFilter(new GitlabNamespaceFilter(
+            $filterCollection->addFilter(new GitNamespaceFilter(
                 $input->getOption('gitlab-namespace')
             ));
         }
@@ -202,10 +202,10 @@ class GitlabToConfigCommand extends Command
         }
 
         /*
-         * Register gitlab domain to enable composer gitlab-* authentications
+         * Register git domain to enable composer git-* authentications
          */
         $gitDomain = parse_url($clientOptions->getUrl(), PHP_URL_HOST);
-        $configBuilder->addGitlabDomain($gitDomain);
+        $configBuilder->addGitDomain($gitDomain);
 
         if (! $input->getOption('no-token') && $clientOptions->hasToken()) {
             if ($client instanceof GitlabClient) {
@@ -221,7 +221,7 @@ class GitlabToConfigCommand extends Command
         }
 
         /*
-         * SCAN gitlab projects to find composer.json file in default branch
+         * SCAN git projects to find composer.json file in default branch
          */
         $logger->info(sprintf(
             "Listing repositories from %s (API : %s)...", 

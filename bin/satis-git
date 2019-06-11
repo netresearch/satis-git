@@ -2,7 +2,7 @@
 <?php
 
 /*
- * This file is part of mbo/satis-gitlab.
+ * This file is part of netresearch/satis-git.
  *
  * (c) Composer <https://github.com/composer>
  *
@@ -29,5 +29,5 @@ if (
  * create extended satis application
  */
 $application = new Composer\Satis\Console\Application();
-$application->add(new \MBO\SatisGitlab\Command\GitlabToConfigCommand());
+$application->add(new \MBO\SatisGit\Command\GitToConfigCommand());
 $application->run();

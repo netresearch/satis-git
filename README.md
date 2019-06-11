@@ -1,52 +1,61 @@
-# mbo/satis-gitlab
+# netresearch/satis-git
 
-[![Build Status](https://travis-ci.org/mborne/satis-gitlab.svg)](https://travis-ci.org/mborne/satis-gitlab)
+[![Build Status](https://travis-ci.org/netresearch/satis-git.svg)](https://travis-ci.org/netresearch/satis-git)
 
-[PHP composer/satis](https://github.com/composer/satis) application extended with the hability to automate SATIS configuration according to GITLAB projects containing a `composer.json` file.
+[PHP composer/satis](https://github.com/composer/satis) application extended with the ability to automate Satis 
+configuration according to git projects containing a `composer.json` file.
+
+Currently supported git providers are: 
+
+* GitHub - only repositories hosted at https://github.com/
+* Gogs - https://gogs.io/ (Note that Gogs detection is based on hostname including 'gogs' somewhere)
+* GitLab - https://gitlab.com/ (any repository not detected as GitHub or Gogs is considered GitLab)
+
+Above repository support relies on [mborne/remote-git](https://packagist.org/packages/mborne/remote-git).
 
 It also provides a way to mirror PHP dependencies to allow offline builds.
 
 ## Usage
 
-### 1) Create SATIS project
+### 1) Create Satis project
 
 ```bash
-git clone https://github.com/mborne/satis-gitlab
-cd satis-gitlab
-# PHP 7.x
+git clone https://github.com/netresearch/satis-git
+cd satis-git
+# PHP 7.3
 composer install
-# PHP 5.6 (downgrading versions refered in composer.lock is required)
+# any other PHP version
 composer update
 ```
 
 
-### 2) Generate SATIS configuration
+### 2) Generate Satis configuration
 
 ```bash
 # add --archive if you want to mirror tar archives
-bin/satis-gitlab gitlab-to-config \
+bin/satis-git git-to-config \
     --homepage https://satis.example.org \
     --output satis.json \
-    https://gitlab.example.org [GitlabToken]
+    https://git.example.org [AuthToken]
 ```
 
-### 3) Use SATIS as usual
+### 3) Use Satis as usual
 
 ```bash
-bin/satis-gitlab build satis.json web
+bin/satis-git build satis.json web
 ```
 
 ### 4) Configure a static file server for the web directory
 
 Use you're favorite tool to expose `web` directory as `https://satis.example.org`.
 
-**satis.json should not be exposed, it contains the GitlabToken by default (see `--no-token`)**
+**satis.json should not be exposed, it contains the auth token by default (see `--no-token`)**
 
 ### 5) Configure clients
 
-#### Option 1 : Configure projects to use SATIS
+#### Option 1 : Configure projects to use Satis
 
-SATIS web page suggests to add the following configuration to composer.json in all your projects :
+Satis web page suggests to add the following configuration to composer.json in all your projects :
 
 ```json
 {
@@ -57,83 +66,82 @@ SATIS web page suggests to add the following configuration to composer.json in a
 }
 ```
 
-#### Option 2 : Configure composer to use SATIS
+#### Option 2 : Configure composer to use Satis
 
-Alternatively, composer can be configured globally to use SATIS :
+Alternatively, composer can be configured globally to use Satis :
 
 ```bash
 composer config --global repo.satis.example.org composer https://satis.example.org
 ```
 
-(it makes a weaker link between your projects and your SATIS instance(s))
+(it makes a weaker link between your projects and your Satis instance(s))
 
 
 ## Advanced usage
 
 ### Filter by organization/groups and users
 
-If you rely on gitlab.com, you will probably need to find projects according to groups and users :
+If you rely on gitlab.com, you will probably need to find projects according to groups and users:
 
 ```bash
-bin/satis-gitlab gitlab-to-config https://gitlab.com $SATIS_GITLAB_TOKEN -vv --users=mborne --orgs=drutopia
+bin/satis-git git-to-config https://gitlab.com \$AUTH_TOKEN -vv --users=git_username --orgs=organization_name
 ```
 
-## Build configuration according to non-gitlab repositories
-
-Repository discovery now relies on [mborne/remote-git](https://packagist.org/packages/mborne/remote-git) so that other git hosting services such as github or gogs are supported.
-
-### github
+### GitHub
 
 ```bash
-bin/satis-gitlab gitlab-to-config https://github.com  $SATIS_GITHUB_TOKEN --orgs=symfony --users=mborne
-bin/satis-gitlab build --skip-errors satis.json web
+bin/satis-git git-to-config https://github.com \$AUTH_TOKEN --orgs=git_organization --users=git_username
+bin/satis-git build --skip-errors satis.json web
 ```
 
-(Note that GITHUB_TOKEN is required to avoid rate request limitation)
+(Note that AUTH_TOKEN is required to avoid rate request limitation)
 
-### gogs
+### Gogs
 
 ```bash
-bin/satis-gitlab gitlab-to-config https://gogs.mydomain.org  $SATIS_GOGS_TOKEN
-bin/satis-gitlab build --skip-errors satis.json web
+bin/satis-git git-to-config https://gogs.mydomain.org \$AUTH_TOKEN
+bin/satis-git build --skip-errors satis.json web
 ```
 
-(Note that gogs detection is based on hostname)
+(Note that Gogs detection is based on hostname)
 
 ### Mirror dependencies
 
 Note that `--archive` option allows to download `tar` archives for each tag and each branch in `web/dist` for :
 
-* The gitlab projects
-* The dependencies of the gitlab projects
+* The git projects
+* The dependencies of the git projects
 
 
 ### Expose only public repositories
 
-Note that `GitlabToken` is optional so that you can generate a SATIS instance only for you're public repositories.
+Note that `AuthToken` is optional so that you can generate a Satis instance only for you're public repositories.
 
 
-### Disable GitlabToken saving
+### Disable AuthToken saving
 
-Note that `gitlab-to-config` saves the `GitlabToken` to `satis.json` configuration file (so far you expose only the `web` directory, it is not a problem). 
+Note that `git-to-config` saves the `AuthToken` to `satis.json` configuration file (so far you expose only the `web` 
+directory, it is not a problem). 
 
-You may disable this option using `--no-token` option and use the following composer command to configure `$COMPOSER_HOME/auth.json` file :
+You may disable this option using `--no-token` option and use the following composer command to configure 
+`$COMPOSER_HOME/auth.json` file :
 
-`composer config -g gitlab-token.satis.example.org GitlabToken`
+`composer config -g git-token.satis.example.org AuthToken`
 
 
 ### Deep customization
 
-Some command line options provide a basic customization options. You may also use `--template my-satis-template.json` to replace the default template :
+Some command line options provide a basic customization options. You may also use `--template my-satis-template.json` 
+to replace the default template :
 
-[default-template.json](src/MBO/SatisGitlab/Resources/default-template.json)
+[default-template.json](src/MBO/SatisGit/Resources/default-template.json)
 
 
 ## Supported PHP versions
 
-PHP 7.2 version is recommanded as it is the current LTS with the longest support (see [PHP - Supported Versions](http://php.net/supported-versions.php))
+PHP 7.3 version is recommended
 
-Meanwhile [5.6, 7.1, 7.2 and 7.3 are tested throw Travis CI](https://travis-ci.org/mborne/satis-gitlab)
+Meanwhile [7.1, 7.2 and 7.3 are tested throw Travis CI](https://travis-ci.org/netresearch/satis-git)
 
 
 ## Testing
@@ -154,5 +162,5 @@ Note that an HTML coverage report is generated to `output/coverage/index.html`
 
 ## License
 
-satis-gitlab is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+satis-git is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 

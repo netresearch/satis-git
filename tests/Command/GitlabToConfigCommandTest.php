@@ -1,16 +1,16 @@
 <?php
 
-namespace MBO\SatisGitlab\Tests\Command;
+namespace MBO\SatisGit\Tests\Command;
 
-use MBO\SatisGitlab\Tests\TestCase;
+use MBO\SatisGit\Tests\TestCase;
 
 use Symfony\Component\Console\Tester\CommandTester;
-use MBO\SatisGitlab\Command\GitlabToConfigCommand;
+use MBO\SatisGit\Command\GitToConfigCommand;
 
 /**
- * Temporary regress test on gitlab-to-config command to ease refactoring
+ * Temporary regress test on git-to-config command to ease refactoring
  */
-class GitlabToConfigCommandTest extends TestCase {
+class GitToConfigCommandTest extends TestCase {
 
     protected $outputFile;
 
@@ -31,7 +31,7 @@ class GitlabToConfigCommandTest extends TestCase {
             $this->markTestSkipped("Missing SATIS_GITLAB_TOKEN for gitlab.com");
             return;
         }
-        $command = new GitlabToConfigCommand('gitlab-to-config');
+        $command = new GitToConfigCommand('git-to-config');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
             'git-url' => 'http://gitlab.com',

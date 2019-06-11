@@ -1,6 +1,6 @@
 <?php
 
-namespace MBO\SatisGitlab\GitFilter;
+namespace MBO\SatisGit\GitFilter;
 
 use Psr\Log\LoggerInterface;
 
@@ -9,11 +9,11 @@ use MBO\RemoteGit\ProjectFilterInterface;
 use MBO\RemoteGit\ClientInterface as GitClientInterface;
 
 /**
- * Filter projects based on GitLab project namespace name or id.
+ * Filter projects based on project namespace name or id.
  * 
  * @author roygoldman
  */
-class GitlabNamespaceFilter implements ProjectFilterInterface
+class GitNamespaceFilter implements ProjectFilterInterface
 {
     /**
      * @var string[]
@@ -31,7 +31,7 @@ class GitlabNamespaceFilter implements ProjectFilterInterface
     protected $logger;
 
     /**
-     * GitlabNamespaceFilter constructor.
+     * GitNamespaceFilter constructor.
      *
      * @param string $groups
      */
@@ -46,7 +46,7 @@ class GitlabNamespaceFilter implements ProjectFilterInterface
      */
     public function getDescription()
     {
-        return "gitlab namespace should be one of [" . implode(', ', $this->groups) . "]";
+        return "Namespace should be one of [" . implode(', ', $this->groups) . "]";
     }
 
     /**

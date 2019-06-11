@@ -1,11 +1,11 @@
 <?php
 
-namespace MBO\SatisGitlab\Tests\Satis;
+namespace MBO\SatisGit\Tests\Satis;
 
-use MBO\SatisGitlab\Tests\TestCase;
+use MBO\SatisGit\Tests\TestCase;
 
 use Symfony\Component\Console\Tester\CommandTester;
-use MBO\SatisGitlab\Satis\ConfigBuilder;
+use MBO\SatisGit\Satis\ConfigBuilder;
 
 class ConfigBuilderTest extends TestCase {
 
@@ -43,10 +43,10 @@ class ConfigBuilderTest extends TestCase {
         $this->assertTrue($result['archive']['skip-dev']);
     }
 
-    public function testAddGitlabDomain(){
+    public function testAddGitDomain(){
         $configBuilder = new ConfigBuilder();
-        $configBuilder->addGitlabDomain('gitlab.com');
-        $configBuilder->addGitlabDomain('my-gitlab.com');        
+        $configBuilder->addGitDomain('gitlab.com');
+        $configBuilder->addGitDomain('my-gitlab.com');
 
         $result = $configBuilder->getConfig();
 

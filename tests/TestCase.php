@@ -1,6 +1,6 @@
 <?php
 
-namespace MBO\SatisGitlab\Tests;
+namespace MBO\SatisGit\Tests;
 
 use PHPUnit\Framework\TestCase as BaseTestCase;
 

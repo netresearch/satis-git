@@ -1,6 +1,6 @@
 <?php
 
-namespace MBO\SatisGitlab\Satis;
+namespace MBO\SatisGit\Satis;
 
 /**
  * Incremental satis configuration builder
@@ -59,12 +59,12 @@ class ConfigBuilder
     }
 
     /**
-     * Add gitlab domain to config
+     * Add git domain to config
      *
-     * @param string $gitlabDomain
+     * @param string $gitDomain
      * @return void
      */
-    public function addGitlabDomain($gitlabDomain)
+    public function addGitDomain($gitDomain)
     {
         if (! isset($this->config['config'])) {
             $this->config['config'] = [];
@@ -73,7 +73,7 @@ class ConfigBuilder
             $this->config['config']['gitlab-domains'] = array();
         }
 
-        $this->config['config']['gitlab-domains'][] = $gitlabDomain;
+        $this->config['config']['gitlab-domains'][] = $gitDomain;
     }
 
     /**

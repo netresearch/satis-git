@@ -11,11 +11,11 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "MBO\\SatisGitlab\\Tests\\": "tests"
+            "MBO\\SatisGit\\Tests\\": "tests"
         }
     },
     "bin": [
-        "bin/satis-gitlab"
+        "bin/satis-git"
     ],
     "require": {
         "ext-json": "*",
