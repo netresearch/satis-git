@@ -2,9 +2,10 @@
 
 namespace MBO\SatisGit\Command;
 
+use Composer\Command\BaseCommand;
 use Psr\Log\LogLevel;
 
-use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -36,7 +37,7 @@ use MBO\RemoteGit\Github\GithubClient;
  * @author SilverFire
  * @author kaystrobach
  */
-class GitToConfigCommand extends Command
+class GitToConfigCommand extends BaseCommand
 {
     protected function configure()
     {
@@ -55,6 +56,8 @@ class GitToConfigCommand extends Command
              */
             ->addArgument('git-url', InputArgument::REQUIRED)
             ->addArgument('git-token')
+
+            ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'Git repository type: "github", "gitlab", "gogs"')
 
             /*
              * Project listing options (hosted git api level)
@@ -84,7 +87,7 @@ class GitToConfigCommand extends Command
             /* 
              * output options
              */
-            ->addOption('output', 'O', InputOption::VALUE_REQUIRED, 'output config file', 'satis.json')
+            ->addOption('file', 'f', InputOption::VALUE_REQUIRED, 'JSON file to use', './satis.json')
         ;
     }
 
@@ -101,6 +104,13 @@ class GitToConfigCommand extends Command
         $clientOptions = new ClientOptions();
         $clientOptions->setUrl($input->getArgument('git-url'));
         $clientOptions->setToken($input->getArgument('git-token'));
+
+        $gitType = $input->getOption('type');
+        $className = '\MBO\RemoteGit\\' . $gitType . '\\' . $gitType . 'Client';
+        if (class_exists($className)) {
+            $clientOptions->setType($className::TYPE);
+        }
+
         /*
          * TODO add option 
          * see https://github.com/mborne/satis-gitlab/issues/2
@@ -111,7 +121,7 @@ class GitToConfigCommand extends Command
             $logger
         );
 
-        $outputFile = $input->getOption('output');
+        $jsonFile = $input->getOption('file');
 
         /*
          * Create repository listing filter (git level)
@@ -131,8 +141,8 @@ class GitToConfigCommand extends Command
         /* projectFilter option */
         $projectFilter = $input->getOption('projectFilter');
         if ( ! empty($projectFilter) ) {
-            $logger->warning(sprintf("--projectFilter is deprecated, prefer --orgs and --users which gives a better control"));
-            $logger->info(sprintf("Project filter : %s...", $projectFilter));
+            $output->writeln('<warning>--projectFilter is deprecated, prefer --orgs and --users which gives a better control</warning>');
+            $output->writeln(sprintf("<info>Project filter : %s...</info>", $projectFilter));
             $findOptions->setSearch($projectFilter);
         }
         
@@ -181,21 +191,30 @@ class GitToConfigCommand extends Command
             ));
         }
 
+        if (! file_exists($jsonFile)) {
+            $command = $this->getApplication()->find('init');
+
+            $arguments = [
+                'command'          => 'init',
+                'file'             => $jsonFile,
+                '--name'           => 'Satis',
+                '--homepage'       => $input->getOption('homepage'),
+            ];
+
+            $greetInput = new ArrayInput($arguments);
+            $greetInput->setInteractive(false);
+            $command->run($greetInput, $output);
+        }
+
         /*
          * Create configuration builder
          */
-        $templatePath = $input->getOption('template');
-        $output->writeln(sprintf("<info>Loading template %s...</info>", $templatePath));
-        $configBuilder = new ConfigBuilder($templatePath);
+        $output->writeln(sprintf("<info>Loading JSON file %s...</info>", $jsonFile));
+        $configBuilder = new ConfigBuilder($jsonFile);
 
         /*
          * customize according to command line options
          */
-        $homepage = $input->getOption('homepage');
-        if ( ! empty($homepage) ){
-            $configBuilder->setHomepage($homepage);
-        }
-
         // mirroring
         if ($input->getOption('archive')) {
             $configBuilder->enableArchive();
@@ -221,10 +240,18 @@ class GitToConfigCommand extends Command
         }
 
         /*
+         * Write resulting config
+         */
+        $satis = $configBuilder->getConfig();
+        $output->writeln(sprintf("<info>Generate JSON configuration file : %s</info>", $jsonFile));
+        $result = json_encode($satis, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        file_put_contents($jsonFile, $result);
+
+        /*
          * SCAN git projects to find composer.json file in default branch
          */
-        $logger->info(sprintf(
-            "Listing repositories from %s (API : %s)...", 
+        $output->writeln(sprintf(
+            "<info>Listing repositories from %s (API : %s)...</info>",
             $clientOptions->getUrl(),
             $clientOptions->getType()
         ));
@@ -236,9 +263,16 @@ class GitToConfigCommand extends Command
         
         /* Generate SATIS configuration */
         $projectCount = 0;
-        foreach ($projects as $project) {
-            $projectUrl = $project->getHttpUrl();
 
+        $addCommand = $this->getApplication()->find('add');
+
+        $addArguments = [
+            'command' => 'add',
+            'file'    => $jsonFile,
+            '--type'  => $input->getOption('type'),
+        ];
+
+        foreach ($projects as $project) {
             try {
                 /* look for composer.json in default branch */
                 $json = $client->getRawFile(
@@ -264,11 +298,11 @@ class GitToConfigCommand extends Command
                     $project,
                     "$projectName:*"
                 ));
-                $configBuilder->addRepository(
-                    $projectName, 
-                    $projectUrl,
-                    $clientOptions->isUnsafeSsl()
-                );
+
+                $addArguments['url'] = $project->getHttpUrl();
+
+                $addCommand->run(new ArrayInput($addArguments), $output);
+
             } catch (\Exception $e) {
                 $logger->debug($e->getMessage());
                 $logger->warning($this->createProjectMessage(
@@ -280,21 +314,13 @@ class GitToConfigCommand extends Command
 
         /* notify number of project found */
         if ($projectCount == 0) {
-            $logger->error("No project found!");
+            $logger->error("No projects found!");
         } else {
             $logger->info(sprintf(
-                "Number of project found : %s",
+                "Number of projects found: %s",
                 $projectCount
             ));
         }
-
-        /*
-         * Write resulting config
-         */
-        $satis = $configBuilder->getConfig();
-        $logger->info("Generate satis configuration file : $outputFile");
-        $result = json_encode($satis, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        file_put_contents($outputFile, $result);
     }
 
 
@@ -323,11 +349,6 @@ class GitToConfigCommand extends Command
      */
     protected function createLogger(OutputInterface $output)
     {
-        $verbosityLevelMap = [
-            LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
-            LogLevel::INFO   => OutputInterface::VERBOSITY_NORMAL,
-        ];
-
-        return new ConsoleLogger($output, $verbosityLevelMap);
+        return new ConsoleLogger($output);
     }
 }

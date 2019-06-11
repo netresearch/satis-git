@@ -160,6 +160,26 @@ Note that an HTML coverage report is generated to `output/coverage/index.html`
 
 * GITLAB API v4
 
+## Known problems
+
+``satis add`` keeps asking for 'Username' and 'Password' for private GitLab instances.
+
+This s due to ``satis add`` ignores your satis.json. You need to put your `gitlab-domains` configuration in 
+`~/.composer/config.json`:
+
+````json
+{
+    "config": {
+        "gitlab-domains": [
+            "git.example.org"
+        ],
+        "gitlab-token": {
+            "git.example.org": "<your token here>"
+        }
+    }
+}
+````
+
 ## License
 
 satis-git is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
