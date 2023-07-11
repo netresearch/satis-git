@@ -345,14 +345,12 @@ class GitToConfigCommand extends BaseCommand
 
     /**
      * Create message for a given project
-     * @param ProjectInterface $project
-     * @param string $message
-     * @return string
      */
     protected function createProjectMessage(
         ProjectInterface $project,
-        $message
-    ){
+        string $message
+    ): string
+    {
         return sprintf(
             '%s (branch %s) : %s',
             $project->getName(),
@@ -363,10 +361,8 @@ class GitToConfigCommand extends BaseCommand
 
     /**
      * Create console logger
-     * @param OutputInterface $output
-     * @return ConsoleLogger
      */
-    protected function createLogger(OutputInterface $output)
+    protected function createLogger(OutputInterface $output): ConsoleLogger
     {
         return new ConsoleLogger($output);
     }

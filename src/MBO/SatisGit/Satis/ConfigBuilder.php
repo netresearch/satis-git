@@ -12,13 +12,13 @@ class ConfigBuilder
     /**
      * resulting configuration
      */
-    protected $config ;
+    protected array $config = [];
 
     /**
      * Init configuration with a template
      * @param $templatePath string path to the template
      */
-    public function __construct($templatePath = null)
+    public function __construct(String $templatePath = null)
     {
         if (empty($templatePath)) {
             $templatePath = __DIR__ . '/../Resources/default-template.json';
@@ -29,7 +29,7 @@ class ConfigBuilder
     /**
      * Get resulting configuration
      */
-    public function getConfig()
+    public function getConfig(): array
     {
         return $this->config;
     }
@@ -37,26 +37,21 @@ class ConfigBuilder
     /**
      * Set name
      */
-    public function setName($name){
+    public function setName(String $name)
+    {
         $this->config['name'] = $name;
-
-        return $this;
     }
 
     /**
      * Set homepage
-     * @param string $homepage
-     * @return void
      */
-    public function setHomepage($homepage)
+    public function setHomepage(String $homepage)
     {
         $this->config['homepage'] = $homepage;
     }
 
     /**
      * Turn on mirror mode
-     *
-     * @return void
      */
     public function enableArchive()
     {
@@ -69,11 +64,8 @@ class ConfigBuilder
 
     /**
      * Add git domain to config
-     *
-     * @param string $gitDomain
-     * @return void
      */
-    public function addGitDomain($gitDomain)
+    public function addGitDomain(String $gitDomain)
     {
         if (! isset($this->config['config'])) {
             $this->config['config'] = [];
@@ -92,7 +84,7 @@ class ConfigBuilder
      *
      * @return self
      */
-    public function addGitlabToken($gitlabDomain, $gitlabAuthToken)
+    public function addGitlabToken(String $gitlabDomain, String $gitlabAuthToken)
     {
         if (! isset($this->config['config']['gitlab-token'])) {
             $this->config['config']['gitlab-token'] = [];
@@ -105,10 +97,9 @@ class ConfigBuilder
     /**
      * Save github token to satis.json
      *
-     * @param  string $githubToken
      * @return self
      */
-    public function addGithubToken($githubToken){
+    public function addGithubToken(String $githubToken){
         $this->config['config']['github-oauth'] = [
             'github.com' => $githubToken
         ];
@@ -126,9 +117,9 @@ class ConfigBuilder
      * @return void
      */
     public function addRepository(
-        $projectName,
-        $projectUrl,
-        $unsafeSsl = false
+        String $projectName,
+        String $projectUrl,
+        Bool $unsafeSsl = false
     ) {
         if (! isset($this->config['repositories'])) {
             $this->config['repositories'] = [];

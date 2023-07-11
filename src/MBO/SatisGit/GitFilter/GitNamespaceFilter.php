@@ -32,10 +32,8 @@ class GitNamespaceFilter implements ProjectFilterInterface
 
     /**
      * GitNamespaceFilter constructor.
-     *
-     * @param string $groups
      */
-    public function __construct($groups)
+    public function __construct(string $groups)
     {
         assert(!empty($groups));
         $this->groups = explode(',', strtolower($groups));
@@ -44,7 +42,7 @@ class GitNamespaceFilter implements ProjectFilterInterface
     /**
      * {@inheritDoc}
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return "Namespace should be one of [" . implode(', ', $this->groups) . "]";
     }
@@ -52,7 +50,7 @@ class GitNamespaceFilter implements ProjectFilterInterface
     /**
      * {@inheritDoc}
      */
-    public function isAccepted(ProjectInterface $project)
+    public function isAccepted(ProjectInterface $project): bool
     {
         $project_info = $project->getRawMetadata();
         if (isset($project_info['namespace'])) {
