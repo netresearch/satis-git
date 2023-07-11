@@ -15,11 +15,11 @@ class ConfigBuilderTest extends TestCase {
 
         // name
         $this->assertArrayHasKey('name',$result);
-        $this->assertEquals('mborne/satis-gitlab-repository',$result['name']);
+        $this->assertEquals('SATIS repository',$result['name']);
 
         // homepage
         $this->assertArrayHasKey('homepage',$result);
-        $this->assertEquals('https://satis.dev.localhost/',$result['homepage']);
+        $this->assertEquals('http://satis.localhost/',$result['homepage']);
     }
 
     public function testSetName(){
