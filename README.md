@@ -7,19 +7,11 @@
 [PHP composer/satis](https://github.com/composer/satis) application extended with the ability to automate Satis 
 configuration according to git projects containing a `composer.json` file.
 
-Currently supported git providers are: 
-
-* GitHub - only repositories hosted at https://github.com/
-* Gogs - https://gogs.io/ (Note that Gogs detection is based on hostname including 'gogs' somewhere)
-* GitLab - https://gitlab.com/ (any repository not detected as GitHub or Gogs is considered GitLab)
-
-Above repository support relies on [mborne/remote-git](https://packagist.org/packages/mborne/remote-git).
-
 It also provides a way to mirror PHP dependencies to allow offline builds.
 
 ## Requirements
 
-* PHP 7.4 or 8.x
+* PHP 8.2
 * GitLab API v4 / GitHub API / Gogs API / Gitea API
 
 ## Usage
@@ -29,10 +21,7 @@ It also provides a way to mirror PHP dependencies to allow offline builds.
 ```bash
 git clone https://github.com/netresearch/satis-git
 cd satis-git
-# PHP 8.1
 composer install
-# PHP 7.4 (downgrading versions refered in composer.lock is required)
-composer update
 ```
 
 
@@ -146,10 +135,7 @@ to replace the default template :
 
 ## Supported PHP versions
 
-PHP 8.1 version is recommended
-
-Meanwhile [7.1, 7.2 and 7.3 are tested throw Travis CI](https://travis-ci.org/netresearch/satis-git)
-
+PHP 8.2
 
 ## Testing
 
