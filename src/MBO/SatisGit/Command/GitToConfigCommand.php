@@ -3,7 +3,6 @@
 namespace MBO\SatisGit\Command;
 
 use Composer\Command\BaseCommand;
-use Psr\Log\LogLevel;
 
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -336,9 +335,9 @@ class GitToConfigCommand extends BaseCommand
          * Write resulting config
          */
         $satis = $configBuilder->getConfig();
-        $logger->info("Generate satis configuration file : $outputFile");
+        $logger->info("Generate satis configuration file : $jsonFile");
         $result = json_encode($satis, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        file_put_contents($outputFile, $result);
+        file_put_contents($jsonFile, $result);
 
         return static::SUCCESS;
     }
