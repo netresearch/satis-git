@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/netresearch/satis-git.svg)](https://travis-ci.org/netresearch/satis-git)
 
+[![CI](https://github.com/netresearch/satis-gitlab/actions/workflows/ci.yml/badge.svg)](https://github.com/netresearch/satis-gitlab/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/netresearch/satis-gitlab/badge.svg?branch=master)](https://coveralls.io/github/netresearch/satis-gitlab?branch=master)
+
 [PHP composer/satis](https://github.com/composer/satis) application extended with the ability to automate Satis 
 configuration according to git projects containing a `composer.json` file.
 
@@ -15,6 +17,11 @@ Above repository support relies on [mborne/remote-git](https://packagist.org/pac
 
 It also provides a way to mirror PHP dependencies to allow offline builds.
 
+## Requirements
+
+* PHP 7.4 or 8.x
+* GitLab API v4 / GitHub API / Gogs API / Gitea API
+
 ## Usage
 
 ### 1) Create Satis project
@@ -22,9 +29,9 @@ It also provides a way to mirror PHP dependencies to allow offline builds.
 ```bash
 git clone https://github.com/netresearch/satis-git
 cd satis-git
-# PHP 7.3
+# PHP 8.1
 composer install
-# any other PHP version
+# PHP 7.4 (downgrading versions refered in composer.lock is required)
 composer update
 ```
 
@@ -139,7 +146,7 @@ to replace the default template :
 
 ## Supported PHP versions
 
-PHP 7.3 version is recommended
+PHP 8.1 version is recommended
 
 Meanwhile [7.1, 7.2 and 7.3 are tested throw Travis CI](https://travis-ci.org/netresearch/satis-git)
 
@@ -155,32 +162,6 @@ make test
 
 Note that an HTML coverage report is generated to `output/coverage/index.html`
 
-
-## Requirements
-
-* GITLAB API v4
-
-## Known problems
-
-``satis add`` keeps asking for 'Username' and 'Password' for private GitLab instances.
-
-This s due to ``satis add`` ignores your satis.json. You need to put your `gitlab-domains` configuration in 
-`~/.composer/config.json`:
-
-````json
-{
-    "config": {
-        "gitlab-domains": [
-            "git.example.org"
-        ],
-        "gitlab-token": {
-            "git.example.org": "<your token here>"
-        }
-    }
-}
-````
-
 ## License
 
 satis-git is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
-

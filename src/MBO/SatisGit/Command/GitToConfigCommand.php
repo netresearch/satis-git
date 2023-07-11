@@ -56,8 +56,8 @@ class GitToConfigCommand extends BaseCommand
              */
             ->addArgument('git-url', InputArgument::REQUIRED)
             ->addArgument('git-token')
-
             ->addOption('type', 't', InputOption::VALUE_REQUIRED, 'Git repository type: "github", "gitlab", "gogs"')
+            ->addOption('unsafe-ssl', null, InputOption::VALUE_NONE, 'allows to ignore SSL problems')
 
             /*
              * Project listing options (hosted git api level)
@@ -79,7 +79,8 @@ class GitToConfigCommand extends BaseCommand
             // deep customization : template file extended with default configuration
             ->addOption('template', null, InputOption::VALUE_REQUIRED, 'template satis.json extended with git repositories', $templatePath)
 
-            // simple customization
+            // simple customization on default-template.json
+            ->addOption('name', null, InputOption::VALUE_REQUIRED, 'satis repository name')
             ->addOption('homepage', null, InputOption::VALUE_REQUIRED, 'satis homepage')
             ->addOption('archive', null, InputOption::VALUE_NONE, 'enable archive mirroring')
             ->addOption('no-token', null, InputOption::VALUE_NONE, 'disable token writing in output configuration')
@@ -94,7 +95,7 @@ class GitToConfigCommand extends BaseCommand
     /**
      * @{inheritDoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $logger = $this->createLogger($output);
 
@@ -111,11 +112,10 @@ class GitToConfigCommand extends BaseCommand
             $clientOptions->setType($className::TYPE);
         }
 
-        /*
-         * TODO add option 
-         * see https://github.com/mborne/satis-gitlab/issues/2
-         */
-        $clientOptions->setUnsafeSsl(true);
+        if ( $input->getOption('unsafe-ssl') ){
+            $clientOptions->setUnsafeSsl(true);
+        }
+
         $client = ClientFactory::createClient(
             $clientOptions,
             $logger
@@ -215,6 +215,16 @@ class GitToConfigCommand extends BaseCommand
         /*
          * customize according to command line options
          */
+        $name = $input->getOption('name');
+        if ( ! empty($name) ){
+            $configBuilder->setName($name);
+        }
+
+        $homepage = $input->getOption('homepage');
+        if ( ! empty($homepage) ){
+            $configBuilder->setHomepage($homepage);
+        }
+
         // mirroring
         if ($input->getOption('archive')) {
             $configBuilder->enableArchive();
@@ -321,6 +331,16 @@ class GitToConfigCommand extends BaseCommand
                 $projectCount
             ));
         }
+
+        /*
+         * Write resulting config
+         */
+        $satis = $configBuilder->getConfig();
+        $logger->info("Generate satis configuration file : $outputFile");
+        $result = json_encode($satis, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        file_put_contents($outputFile, $result);
+
+        return static::SUCCESS;
     }
 
 
